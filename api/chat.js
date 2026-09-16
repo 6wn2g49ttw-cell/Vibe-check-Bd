@@ -4,10 +4,12 @@ export default async function handler(req, res) {
     }
 
     const { message, chatUserName } = req.body;
-    const apiKey = process.env.GEMINI_API_KEY;
+    
+    // সরাসরি এখানে আপনার জেমিনি এপিআই কি বসিয়ে দিন (কোড দুটির মাঝখানে)
+    const apiKey = process.env.GEMINI_API_KEY || "AIzaSy...আপনার_আসল_এপিআই_কি_এখানে_বসান";
 
     if (!apiKey) {
-        return res.status(500).json({ error: 'API Key not configured on Vercel' });
+        return res.status(500).json({ error: 'API Key not configured' });
     }
 
     try {
