@@ -3,382 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ভাইব চেক বিডি - ডেটিং ও চ্যাট</title>
+    <title>Vibe Check BD</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root {
-            --tg-theme-bg-color: #ffffff;
-            --tg-theme-text-color: #000000;
-            --tg-theme-button-color: #2481cc;
-            --tg-theme-button-text-color: #ffffff;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--tg-theme-bg-color, #f4f4f5);
-            color: var(--tg-theme-text-color, #222);
-            margin: 0;
-            padding: 15px;
-        }
-        .container {
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        h2 {
-            text-align: center;
-            color: var(--tg-theme-button-color, #2481cc);
-        }
-        .card {
-            background: #fff;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            margin-bottom: 15px;
-        }
-        .form-group {
-            margin-bottom: 12px;
-        }
-        label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-        input, select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 14px;
-            background: #fff;
-        }
-        .optional-text {
-            font-size: 11px;
-            color: #888;
-            font-weight: normal;
-        }
-        button {
-            width: 100%;
-            background-color: var(--tg-theme-button-color, #2481cc);
-            color: var(--tg-theme-button-text-color, #fff);
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .hidden {
-            display: none;
-        }
-        .profiles-scroll-area {
-            max-height: 350px;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-        .profile-card {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #f9f9f9;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #eee;
-        }
-        .profile-left {
-            display: flex;
-            align-items: center;
-        }
-        .profile-avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            object-fit: cover;
-            background: #ccc;
-            margin-right: 10px;
-        }
-        .profile-info h4 {
-            margin: 0 0 2px 0;
-            font-size: 14px;
-        }
-        .profile-info p {
-            margin: 0;
-            font-size: 11px;
-            color: #666;
-        }
-        .chat-btn {
-            background-color: #27ae60;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            width: auto;
-            margin-top: 0;
-        }
-        .chat-box {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            padding: 10px;
-            margin-top: 15px;
-        }
-        .chat-messages {
-            height: 180px;
-            overflow-y: auto;
-            border-bottom: 1px solid #eee;
-            margin-bottom: 10px;
-            padding: 5px;
-            font-size: 13px;
-        }
-        .chat-input-area {
-            display: flex;
-            gap: 5px;
-        }
-        .chat-input-area input {
-            margin-top: 0;
-        }
-        .chat-input-area button {
-            width: 80px;
-            margin-top: 0;
-            padding: 8px;
-            font-size: 13px;
-        }
-        .typing-indicator {
-            font-size: 11px;
-            color: #888;
-            font-style: italic;
-            margin-bottom: 5px;
-            display: none;
-        }
+        body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 0; text-align: center; }
+        .hidden { display: none !important; }
+        #paywall { padding: 40px 20px; max-width: 400px; margin: 50px auto; background: white; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        #app-container { max-width: 500px; margin: auto; padding: 10px; }
+        .banner { background: #ff4757; color: white; padding: 10px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; }
+        .profile-card { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .chat-box { background: white; border-radius: 8px; padding: 10px; height: 350px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .messages { flex: 1; overflow-y: auto; text-align: left; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .msg { padding: 10px; border-radius: 8px; max-width: 75%; word-break: break-word; }
+        .msg.user { background: #0088cc; color: white; align-self: flex-end; }
+        .msg.bot { background: #e4e6eb; color: black; align-self: flex-start; }
+        .chat-input-area { display: flex; gap: 5px; margin-top: 10px; }
+        .chat-input-area input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .chat-input-area button { padding: 10px 15px; background: #0088cc; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-pay { background: #2ed573; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <!-- ১. প্রোফাইল রেজিস্ট্রেশন ফর্ম -->
-        <div id="register-section" class="card">
-            <h2>💖 ভাইব চেক বিডি</h2>
-            <p style="text-align: center; font-size: 13px; color: #666; margin-top: -5px;">চ্যাট শুরু করতে আপনার তথ্য দিন</p>
-            
-            <div class="form-group">
-                <label>আপনার নাম বা ডাকনাম</label>
-                <input type="text" id="name" placeholder="যেমন: তানভীর">
+    <!-- পেমেন্ট ও অ্যাক্সেস ওয়াল -->
+    <div id="paywall">
+        <h2>🔒 প্রিমিয়াম অ্যাক্সেস</h2>
+        <p>মিনি অ্যাপ ব্যবহার করতে এবং চ্যাট করতে আগে পেমেন্ট সম্পন্ন করুন।</p>
+        <button class="btn-pay" onclick="verifyPayment()">টেলিগ্রাম বট পেমেন্ট সম্পন্ন করুন</button>
+    </div>
+
+    <!-- মূল মিনি অ্যাপ ইন্টারফেস -->
+    <div id="app-container" class="hidden">
+        <div class="banner">Active people's accounts দেখা যাচ্ছে</div>
+        
+        <div id="profiles-view">
+            <div class="profile-card">
+                <span>ঝিনুক রহমান (২৩) • ঢাকা</span>
+                <button onclick="openChat('ঝিনুক রহমান')" style="background:#2ed573; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer;">মেসেজ</button>
             </div>
-            <div class="form-group">
-                <label>বয়স</label>
-                <input type="number" id="age" placeholder="যেমন: ২২">
+            <div class="profile-card">
+                <span>নুসরাত জাহান (২২) • চট্টগ্রাম</span>
+                <button onclick="openChat('নুসরাত জাহান')" style="background:#2ed573; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer;">মেসেজ</button>
             </div>
-            <div class="form-group">
-                <label>শহর</label>
-                <input type="text" id="city" placeholder="যেমন: ঢাকা">
-            </div>
-            <div class="form-group">
-                <label>পেশা</label>
-                <input type="text" id="profession" placeholder="যেমন: ছাত্র">
-            </div>
-            <div class="form-group">
-                <label>শখ (Hobby)</label>
-                <input type="text" id="hobbies" placeholder="যেমন: গেম, ভ্রমণ">
-            </div>
-            <div class="form-group">
-                <label>কার সাথে চ্যাট করতে চান?</label>
-                <select id="chat-preference">
-                    <option value="female">মেয়েদের সাথে (২১৩টি প্রোফাইল)</option>
-                    <option value="male">ছেলেদের সাথে (৮৬টি প্রোফাইল)</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>প্রোফাইল ছবির লিংক <span class="optional-text">(ঐচ্ছিক)</span></label>
-                <input type="text" id="photo" placeholder="https://example.com/photo.jpg">
-            </div>
-            <button onclick="saveProfile()">সেভ করুন ও চ্যাট শুরু করুন</button>
         </div>
 
-        <!-- ২. ড্যাশবোর্ড বা চ্যাট ফিড সেকশন -->
-        <div id="dashboard-section" class="hidden">
-            <h2>🔥 সক্রিয় প্রোফাইলসমূহ</h2>
-            <div class="card" style="background: #eef6fc; margin-bottom: 10px;">
-                <h3 id="welcome-user" style="margin:0 0 5px 0;">স্বাগতম!</h3>
-                <p id="user-details-summary" style="margin:0; font-size:13px; color:#555;"></p>
-            </div>
-            
-            <!-- স্ক্রোলেবল প্রোফাইল লিস্ট (২১৩টি বা ৮৬টি শো করার এরিয়া) -->
-            <div class="profiles-scroll-area" id="profiles-list"></div>
-
-            <!-- চ্যাট বক্স -->
-            <div id="chat-box-container" class="chat-box hidden">
-                <h4 id="chat-with-title" style="margin: 0 0 8px 0; color: #2481cc; font-size: 14px;">Chat</h4>
-                <div class="chat-messages" id="chat-messages-area">
-                    <p style="color: #888; text-align: center; font-size: 12px;">কথোপকথন শুরু করুন...</p>
-                </div>
-                <div id="typing-status" class="typing-indicator">টাইপ করছেন...</div>
+        <div id="chat-view" class="hidden">
+            <h3 id="chat-title">চ্যাট</h3>
+            <div class="chat-box">
+                <div class="messages" id="msgList"></div>
                 <div class="chat-input-area">
-                    <input type="text" id="msg-input" placeholder="কিছু একটা লিখুন...">
+                    <input type="text" id="userInput" placeholder="কিছু একটা লিখুন...">
                     <button onclick="sendMessage()">পাঠান</button>
                 </div>
             </div>
-
-            <button style="background-color: #e74c3c; margin-top: 15px;" onclick="resetProfile()">প্রোফাইল পরিবর্তন করুন</button>
+            <button onclick="backToProfiles()" style="margin-top: 15px; background: #ff4757; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">প্রোফাইলে ফিরে যান</button>
         </div>
     </div>
 
     <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
+        // পেমেন্ট চেক করার ফাংশন (বট পেমেন্টের পর এক্সেস দিবে)
+        function verifyPayment() {
+            // পেমেন্ট সফল ধরে অ্যাপ আনলক করা হচ্ছে
+            localStorage.setItem("hasPaid", "true");
+            checkAccess();
+        }
+
+        function checkAccess() {
+            if (localStorage.getItem("hasPaid") === "true") {
+                document.getElementById('paywall').classList.add('hidden');
+                document.getElementById('app-container').classList.remove('hidden');
+            }
+        }
+
         let currentChatUser = "";
-
-        // ডাইনামিক র্যান্ডম নাম এবং শহরের তালিকা থেকে ২১৩টি মেয়ে ও ৮৬টি ছেলের প্রফেশনাল ডাটা জেনারেট করার লজিক
-        const firstNamesFemale = ["নুসরাত", "সাদিয়া", "মেহজাবিন", "প্রিয়া", "তানিয়া", "ফারিহা", "আফরোজা", "পূজা", "রোকেয়া", "ঝিনুক", "মাহি", "পূরবী", "নূসরাত", "সামিয়া", "তানজিম", "অর্পা", "পূজা", "নাজিফা", "সায়মা", "মৌসুমী"];
-        const lastNamesFemale = ["জাহান", "ইসলাম", "প্রিয়া", "আক্তার", "সুলতানা", "चौধুরী", "হক", "রহমান", "সেন", "দাস", "মণ্ডল", "তালুকদার", "ববি", "খন্দকার", "সিদ্দিকা"];
-        const cities = ["ঢাকা", "চট্টগ্রাম", "সিলেট", "রাজশাহী", "খুলনা", "বরিশাল", "রংপুর", "কুমিল্লা", "ময়মনসিংহ", "গাজীপুর", "নারায়ণগঞ্জ"];
-        const professionsFemale = ["ছাত্রী", "গ্রাফিক্স ডিজাইনার", "মডেল", "শিক্ষিকা", "ফ্যাশন ডিজাইনার", "সাংবাদিক", "কন্টেন্ট ক্রিয়েটর", "ডাক্তার"];
-        const hobbiesFemale = ["বই পড়া", "ফটোগ্রাফি", "গান শোনা", "রান্না করা", "নাটক দেখা", "ভ্রমণ", "আঁকাআঁকি"];
-
-        const firstNamesMale = ["রহিম", "তানভীর", "ফাহিম", "শাকিল", "সাকিব", "রাকিব", "ইমরান", "নাঈম", "জনি", "সাব্বির", "আরিফ", "নয়ন", "রিদয়", "জাহিদ", "সোহাগ", "সজীব", "বায়েজিদ", "ফারহান"];
-        const lastNamesMale = ["উদ্দিন", "আহমেদ", "মুনতাসীর", "খান", "চৌধুরী", "হক", "মজুমদার", "তালুকদার", "সরকার", "মিয়া", "বিশ্বাস", "প্রামাণিক"];
-        const professionsMale = ["সফটওয়্যার ইঞ্জিনিয়ার", "ব্যবসায়ী", "ডিজিটাল মার্কেটার", "ফ্রিল্যান্সার", "ব্যাংকার", "সাংবাদিক", "গ্রাফিক্স ডিজাইনার", "ছাত্র"];
-        const hobbiesMale = ["কোডিং ও গেম", "ভ্রমণ", "ক্রিকেট", "ফটোগ্রাফি", "গিটার বাজানো", "সিনেমা দেখা", "ফুটবল"];
-
-        function generateProfiles(count, gender) {
-            let list = [];
-            let fNames = gender === 'female' ? firstNamesFemale : firstNamesMale;
-            let lNames = gender === 'female' ? lastNamesFemale : lastNamesMale;
-            let profs = gender === 'female' ? professionsFemale : professionsMale;
-            let hobs = gender === 'female' ? hobbiesFemale : hobbiesMale;
-
-            for (let i = 1; i <= count; i++) {
-                let name = fNames[Math.floor(Math.random() * fNames.length)] + " " + lNames[Math.floor(Math.random() * lNames.length)];
-                let age = Math.floor(Math.random() * (28 - 18 + 1)) + 18;
-                let city = cities[Math.floor(Math.random() * cities.length)];
-                let profession = profs[Math.floor(Math.random() * profs.length)];
-                let hobby = hobs[Math.floor(Math.random() * hobs.length)];
-                let avatar = `https://picsum.photos/50/50?random=${gender === 'female' ? i : i + 500}`;
-
-                list.push({ name: `${name} (${i})`, age, city, profession, hobby, avatar });
-            }
-            return list;
-        }
-
-        // মেয়েদের ২১৩টি এবং ছেলেদের ৮৬টি প্রোফাইল জেনারেট করা হলো
-        const allProfiles = {
-            female: generateProfiles(213, 'female'),
-            male: generateProfiles(86, 'male')
-        };
-
-        window.onload = function() {
-            let savedProfile = localStorage.getItem('vibecheck_user_data');
-            if (savedProfile) {
-                let user = JSON.parse(savedProfile);
-                showDashboard(user);
-            }
-        };
-
-        function saveProfile() {
-            let name = document.getElementById('name').value.trim();
-            let age = document.getElementById('age').value.trim();
-            let city = document.getElementById('city').value.trim();
-            let profession = document.getElementById('profession').value.trim() || 'ছাত্র/চাকুরীজীবী';
-            let hobbies = document.getElementById('hobbies').value.trim() || 'সাধারণ';
-            let preference = document.getElementById('chat-preference').value;
-            
-            let photoInput = document.getElementById('photo').value.trim();
-            let photo = photoInput !== "" ? photoInput : 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
-
-            if(!name || !age || !city) {
-                alert('দয়া করে অন্তত নাম, বয়স এবং শহর পূরণ করুন!');
-                return;
-            }
-
-            let userData = { name, age, city, profession, hobbies, preference, photo };
-            localStorage.setItem('vibecheck_user_data', JSON.stringify(userData));
-            
-            showDashboard(userData);
-        }
-
-        function showDashboard(user) {
-            document.getElementById('register-section').classList.add('hidden');
-            document.getElementById('dashboard-section').classList.remove('hidden');
-            document.getElementById('welcome-user').innerText = `স্বাগতম, ${user.name}! 👋`;
-            document.getElementById('user-details-summary').innerText = `বয়স: ${user.age} বছর • শহর: ${user.city} • পেশা: ${user.profession}\nশখ: ${user.hobbies}`;
-
-            let profilesContainer = document.getElementById('profiles-list');
-            profilesContainer.innerHTML = "";
-
-            let targetList = allProfiles[user.preference] || allProfiles.female;
-
-            targetList.forEach(p => {
-                profilesContainer.innerHTML += `
-                    <div class="profile-card">
-                        <div class="profile-left">
-                            <img src="${p.avatar}" class="profile-avatar" alt="Avatar">
-                            <div class="profile-info">
-                                <h4>${p.name}, ${p.age} • ${p.city}</h4>
-                                <p>${p.profession} | শখ: ${p.hobby}</p>
-                            </div>
-                        </div>
-                        <button class="chat-btn" onclick="openChat('${p.name}')">মেসেজ</button>
-                    </div>
-                `;
-            });
-        }
-
-        function resetProfile() {
-            localStorage.removeItem('vibecheck_user_data');
-            document.getElementById('dashboard-section').classList.add('hidden');
-            document.getElementById('register-section').classList.remove('hidden');
-            document.getElementById('chat-box-container').classList.add('hidden');
-        }
 
         function openChat(name) {
             currentChatUser = name;
-            document.getElementById('chat-box-container').classList.remove('hidden');
-            document.getElementById('chat-with-title').innerText = `${name}-এর সাথে চ্যাট`;
-            document.getElementById('chat-messages-area').innerHTML = `<p style="color: #888; text-align: center; font-size: 12px;">${name}-এর সাথে চ্যাট শুরু হয়েছে...</p>`;
+            document.getElementById('profiles-view').classList.add('hidden');
+            document.getElementById('chat-view').classList.remove('hidden');
+            document.getElementById('chat-title').innerText = name + "-এর সাথে চ্যাট";
+            document.getElementById('msgList').innerHTML = '';
+        }
+
+        function backToProfiles() {
+            document.getElementById('chat-view').classList.add('hidden');
+            document.getElementById('profiles-view').classList.remove('hidden');
         }
 
         async function sendMessage() {
-            let input = document.getElementById('msg-input');
-            let text = input.value.trim();
-            if(!text) return;
+            const inputField = document.getElementById('userInput');
+            const message = inputField.value.trim();
+            if (!message) return;
 
-            let msgArea = document.getElementById('chat-messages-area');
+            const msgList = document.getElementById('msgList');
             
-            msgArea.innerHTML += `<div style="text-align: right; margin-bottom: 8px;"><span style="background: #2481cc; color: white; padding: 6px 10px; border-radius: 8px; display: inline-block; font-size: 12px; max-width: 80%;">${text}</span></div>`;
-            input.value = "";
-            msgArea.scrollTop = msgArea.scrollHeight;
-
-            let typingIndicator = document.getElementById('typing-status');
-            typingIndicator.innerText = `${currentChatUser} টাইপ করছেন...`;
-            typingIndicator.style.display = "block";
+            // ইউজারের মেসেজ যোগ করা
+            msgList.innerHTML += `<div class="msg user">${message}</div>`;
+            inputField.value = '';
+            msgList.scrollTop = msgList.scrollHeight;
 
             try {
-                let response = await fetch('/api/chat', {
+                const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: text, chatUserName: currentChatUser })
+                    body: JSON.stringify({ message, chatUserName: currentChatUser })
                 });
+                const data = await response.json();
 
-                let data = await response.json();
-                let aiReply = data.reply || "বাহ, দারুণ কথা বললেন! আচ্ছা বলুন তো, আপনার ফ্রি সময়ে কী করতে ভালো লাগে?";
-
-                // আপনার চাওয়া অনুযায়ী ১০ থেকে ৩০ সেকেন্ডের মধ্যে রেন্ডম টাইম ডিলে (বাস্তব মানুষের মতো)
-                let randomDelay = Math.floor(Math.random() * (30000 - 10000 + 1)) + 10000;
-
+                // বটের ফিক্সড রিপ্লাই দেখানো
                 setTimeout(() => {
-                    typingIndicator.style.display = "none";
-                    msgArea.innerHTML += `<div style="text-align: left; margin-bottom: 8px;"><span style="background: #e5e5ea; color: black; padding: 6px 10px; border-radius: 8px; display: inline-block; font-size: 12px; max-width: 80%;">${aiReply}</span></div>`;
-                    msgArea.scrollTop = msgArea.scrollHeight;
-                }, randomDelay);
+                    msgList.innerHTML += `<div class="msg bot">${data.reply}</div>`;
+                    msgList.scrollTop = msgList.scrollHeight;
+                }, 1000);
 
             } catch (err) {
-                typingIndicator.style.display = "none";
                 console.error(err);
             }
         }
+
+        // পেজ লোড হলে পেমেন্ট স্ট্যাটাস চেক করবে
+        window.onload = checkAccess;
     </script>
 </body>
 </html>
