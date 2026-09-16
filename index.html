@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ভাইব চেক বিডি - ডেটিং ও চ্যাট</title>
-    <!-- Telegram Web App Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -75,27 +74,72 @@
         .profile-card {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             background: #f9f9f9;
             padding: 10px;
             border-radius: 8px;
             margin-bottom: 10px;
         }
+        .profile-left {
+            display: flex;
+            align-items: center;
+        }
         .profile-avatar {
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             object-fit: cover;
             background: #ccc;
-            margin-right: 12px;
+            margin-right: 10px;
         }
         .profile-info h4 {
-            margin: 0 0 4px 0;
-            font-size: 15px;
+            margin: 0 0 2px 0;
+            font-size: 14px;
         }
         .profile-info p {
             margin: 0;
-            font-size: 12px;
+            font-size: 11px;
             color: #666;
+        }
+        .chat-btn {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            width: auto;
+            margin-top: 0;
+        }
+        /* চ্যাট উইন্ডো স্টাইল */
+        .chat-box {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 15px;
+        }
+        .chat-messages {
+            height: 150px;
+            overflow-y: auto;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 10px;
+            padding: 5px;
+            font-size: 13px;
+        }
+        .chat-input-area {
+            display: flex;
+            gap: 5px;
+        }
+        .chat-input-area input {
+            margin-top: 0;
+        }
+        .chat-input-area button {
+            width: 80px;
+            margin-top: 0;
+            padding: 8px;
+            font-size: 13px;
         }
     </style>
 </head>
@@ -121,11 +165,11 @@
             </div>
             <div class="form-group">
                 <label>পেশা</label>
-                <input type="text" id="profession" placeholder="যেমন: ছাত্র / চাকুরীজীবী">
+                <input type="text" id="profession" placeholder="যেমন: ছাত্র">
             </div>
             <div class="form-group">
                 <label>শখ (Hobby)</label>
-                <input type="text" id="hobbies" placeholder="যেমন: গেম খেলা, ভ্রমণ, গান শোনা">
+                <input type="text" id="hobbies" placeholder="যেমন: গেম, ভ্রমণ">
             </div>
             <div class="form-group">
                 <label>প্রোফাইল ছবির লিংক <span class="optional-text">(ঐচ্ছিক)</span></label>
@@ -143,23 +187,44 @@
             </div>
             
             <div id="profiles-list">
-                <!-- ডেমো ম্যাচিং প্রোফাইল কার্ড -->
+                <!-- প্রোফাইল কার্ড ১ -->
                 <div class="profile-card">
-                    <img src="https://picsum.photos/50/50?random=10" class="profile-avatar" alt="Avatar">
-                    <div class="profile-info">
-                        <h4>নুসরাত, ২১ • চট্টগ্রাম</h4>
-                        <p>পেশা: ছাত্রী | শখ: বই পড়া</p>
+                    <div class="profile-left">
+                        <img src="https://picsum.photos/50/50?random=10" class="profile-avatar" alt="Avatar">
+                        <div class="profile-info">
+                            <h4>নুসরাত, ২১ • চট্টগ্রাম</h4>
+                            <p>ছাত্রী | শখ: বই পড়া</p>
+                        </div>
                     </div>
+                    <button class="chat-btn" onclick="openChat('নুসরাত')">মেসেজ</button>
                 </div>
+
+                <!-- প্রোফাইল কার্ড ২ -->
                 <div class="profile-card">
-                    <img src="https://picsum.photos/50/50?random=20" class="profile-avatar" alt="Avatar">
-                    <div class="profile-info">
-                        <h4>রহিম, ২৪ • সিলেট</h4>
-                        <p>পেশা: ইঞ্জিনিয়ার | শখ: ফটোগ্রাফি</p>
+                    <div class="profile-left">
+                        <img src="https://picsum.photos/50/50?random=20" class="profile-avatar" alt="Avatar">
+                        <div class="profile-info">
+                            <h4>রহিম, ২৪ • সিলেট</h4>
+                            <p>ইঞ্জিনিয়ার | শখ: ফটোগ্রাফি</p>
+                        </div>
                     </div>
+                    <button class="chat-btn" onclick="openChat('রহিম')">মেসেজ</button>
                 </div>
             </div>
-            <button style="background-color: #e74c3c;" onclick="resetProfile()">প্রোফাইল পরিবর্তন করুন</button>
+
+            <!-- চ্যাট বক্স (মেসেজ বাটনে ক্লিক করলে শো হবে) -->
+            <div id="chat-box-container" class="chat-box hidden">
+                <h4 id="chat-with-title" style="margin: 0 0 8px 0; color: #2481cc; font-size: 14px;">Chat</h4>
+                <div class="chat-messages" id="chat-messages-area">
+                    <p style="color: #888; text-align: center; margin-top: 50px;">কথোপকথন শুরু করুন...</p>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="msg-input" placeholder="লুকিয়ে কিছু লিখুন...">
+                    <button onclick="sendMessage()">পাঠান</button>
+                </div>
+            </div>
+
+            <button style="background-color: #e74c3c; margin-top: 15px;" onclick="resetProfile()">প্রোফাইল পরিবর্তন করুন</button>
         </div>
     </div>
 
@@ -207,6 +272,29 @@
             localStorage.removeItem('vibecheck_bn_user');
             document.getElementById('dashboard-section').classList.add('hidden');
             document.getElementById('register-section').classList.remove('hidden');
+        }
+
+        function openChat(name) {
+            document.getElementById('chat-box-container').classList.remove('hidden');
+            document.getElementById('chat-with-title').innerText = `${name}-এর সাথে চ্যাট`;
+            document.getElementById('chat-messages-area').innerHTML = `<p style="color: #888; text-align: center; font-size: 12px;">${name}-এর সাথে চ্যাট শুরু হয়েছে...</p>`;
+        }
+
+        function sendMessage() {
+            let input = document.getElementById('msg-input');
+            let text = input.value.trim();
+            if(!text) return;
+
+            let msgArea = document.getElementById('chat-messages-area');
+            msgArea.innerHTML += `<div style="text-align: right; margin-bottom: 5px;"><span style="background: #2481cc; color: white; padding: 5px 10px; border-radius: 8px; display: inline-block; font-size: 12px;">${text}</span></div>`;
+            input.value = "";
+            msgArea.scrollTop = msgArea.scrollHeight;
+
+            // অটো রিপ্লাই সিমুলেশন (মজার জন্য)
+            setTimeout(() => {
+                msgArea.innerHTML += `<div style="text-align: left; margin-bottom: 5px;"><span style="background: #e5e5ea; color: black; padding: 5px 10px; border-radius: 8px; display: inline-block; font-size: 12px;">হাই! কেমন আছেন? 😊</span></div>`;
+                msgArea.scrollTop = msgArea.scrollHeight;
+            }, 1000);
         }
     </script>
 </body>
