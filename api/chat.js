@@ -4,9 +4,7 @@ export default async function handler(req, res) {
     }
 
     const { message, chatUserName } = req.body;
-    
-    // নিচে কোটেশনের ভেতরে আপনার আসল জেমিনি এপিআই কি (API Key) বসিয়ে দিন
-    const apiKey = "আপনার_আসল_জেমিনি_এপিআই_কি_এখানে_বসান";
+    const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
         return res.status(500).json({ error: 'API Key missing' });
