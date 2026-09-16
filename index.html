@@ -121,7 +121,7 @@
             margin-top: 15px;
         }
         .chat-messages {
-            height: 150px;
+            height: 180px;
             overflow-y: auto;
             border-bottom: 1px solid #eee;
             margin-bottom: 10px;
@@ -140,6 +140,13 @@
             margin-top: 0;
             padding: 8px;
             font-size: 13px;
+        }
+        .typing-indicator {
+            font-size: 11px;
+            color: #888;
+            font-style: italic;
+            margin-bottom: 5px;
+            display: none;
         }
     </style>
 </head>
@@ -212,14 +219,15 @@
                 </div>
             </div>
 
-            <!-- চ্যাট বক্স (মেসেজ বাটনে ক্লিক করলে শো হবে) -->
+            <!-- চ্যাট বক্স -->
             <div id="chat-box-container" class="chat-box hidden">
                 <h4 id="chat-with-title" style="margin: 0 0 8px 0; color: #2481cc; font-size: 14px;">Chat</h4>
                 <div class="chat-messages" id="chat-messages-area">
-                    <p style="color: #888; text-align: center; margin-top: 50px;">কথোপকথন শুরু করুন...</p>
+                    <p style="color: #888; text-align: center; font-size: 12px;">কথোপকথন শুরু করুন...</p>
                 </div>
+                <div id="typing-status" class="typing-indicator">লিংক লিখছেন...</div>
                 <div class="chat-input-area">
-                    <input type="text" id="msg-input" placeholder="লুকিয়ে কিছু লিখুন...">
+                    <input type="text" id="msg-input" placeholder="কিছু একটা লিখুন...">
                     <button onclick="sendMessage()">পাঠান</button>
                 </div>
             </div>
@@ -231,6 +239,7 @@
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
+        let currentChatUser = "";
 
         window.onload = function() {
             let savedProfile = localStorage.getItem('vibecheck_bn_user');
@@ -275,6 +284,7 @@
         }
 
         function openChat(name) {
+            currentChatUser = name;
             document.getElementById('chat-box-container').classList.remove('hidden');
             document.getElementById('chat-with-title').innerText = `${name}-এর সাথে চ্যাট`;
             document.getElementById('chat-messages-area').innerHTML = `<p style="color: #888; text-align: center; font-size: 12px;">${name}-এর সাথে চ্যাট শুরু হয়েছে...</p>`;
@@ -286,15 +296,52 @@
             if(!text) return;
 
             let msgArea = document.getElementById('chat-messages-area');
-            msgArea.innerHTML += `<div style="text-align: right; margin-bottom: 5px;"><span style="background: #2481cc; color: white; padding: 5px 10px; border-radius: 8px; display: inline-block; font-size: 12px;">${text}</span></div>`;
+            
+            // ইউজারের মেসেজ যোগ করা
+            msgArea.innerHTML += `<div style="text-align: right; margin-bottom: 8px;"><span style="background: #2481cc; color: white; padding: 6px 10px; border-radius: 8px; display: inline-block; font-size: 12px; max-width: 80%;">${text}</span></div>`;
             input.value = "";
             msgArea.scrollTop = msgArea.scrollHeight;
 
-            // অটো রিপ্লাই সিমুলেশন (মজার জন্য)
+            // "টাইপিং..." স্ট্যাটাস দেখানো
+            let typingIndicator = document.getElementById('typing-status');
+            typingIndicator.innerText = `${currentChatUser} টাইপ করছেন...`;
+            typingIndicator.style.display = "block";
+
+            // ইউজার কী লিখছে তার ওপর ভিত্তি করে স্মার্ট ও প্রাসঙ্গিক উত্তর সিলেক্ট করার লজিক
+            let lowerText = text.toLowerCase();
+            let smartReply = "";
+
+            if (lowerText.includes('কেমন') || lowerText.includes('kemon') || lowerText.includes('hi') || lowerText.includes('hello') || lowerText.includes('হাই')) {
+                smartReply = "আলহামদুলিল্লাহ, ভালো আছি! আপনি কেমন আছেন?";
+            } else if (lowerText.includes('নাম') || lowerText.includes('name') || lowerText.includes('के')) {
+                smartReply = `আমার নাম ${currentChatUser}। আর আপনার নাম কী?`;
+            } else if (lowerText.includes('কোথায়') || lowerText.includes('basha') || lowerText.includes('kothay') || lowerText.includes('city')) {
+                smartReply = "আমি এই অ্যাপেই থাকি! আপনার বাসা কোথায়?";
+            } else if (lowerText.includes('কী করো') || lowerText.includes('ki koro') || lowerText.includes('student') || lowerText.includes('job')) {
+                smartReply = "পড়াশোনা আর এই অ্যাপ নিয়ে ব্যস্ত থাকি। আপনি কী করেন?";
+            } else if (lowerText.includes('love') || lowerText.includes('crush') || lowerText.includes('bhalobasha') || lowerText.includes('dating')) {
+                smartReply = "বাপরে! এত দ্রুত প্রেমের কথা বলছেন কেন? আগে বন্ধু তো হই! 🤭";
+            } else {
+                // সাধারণ বা অন্য কথার জন্য র্যান্ডম ক্যাচি উত্তর
+                const generalReplies = [
+                    "হুম, বিষয়টি ইন্টারেস্টিং তো! তারপর বলুন...",
+                    "আপনার সাথে কথা বলে বেশ ভালো লাগছে। সারাদিন কী করেন?",
+                    "আচ্ছা! এই কথাটা দারুণ বলেছেন। 😃",
+                    "তাই নাকি? আমি তো জানতামই না!",
+                    "আপনার হবি বা শখ কী কী বলুন তো?",
+                    "চমৎকার! ফ্রি থাকলে ঘুরে আসার প্ল্যান করা যেতে পারে।"
+                ];
+                smartReply = generalReplies[Math.floor(Math.random() * generalReplies.length)];
+            }
+
+            // ১০ থেকে ২০ সেকেন্ডের মধ্যে র্যান্ডম টাইম সিলেক্ট করা (যেমন: ১০ সেকেন্ড থেকে ২০ সেকেন্ডের মধ্যে যেকোনো এক সময়ে মেসেজ আসবে)
+            let randomTime = Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000;
+
             setTimeout(() => {
-                msgArea.innerHTML += `<div style="text-align: left; margin-bottom: 5px;"><span style="background: #e5e5ea; color: black; padding: 5px 10px; border-radius: 8px; display: inline-block; font-size: 12px;">হাই! কেমন আছেন? 😊</span></div>`;
+                typingIndicator.style.display = "none";
+                msgArea.innerHTML += `<div style="text-align: left; margin-bottom: 8px;"><span style="background: #e5e5ea; color: black; padding: 6px 10px; border-radius: 8px; display: inline-block; font-size: 12px; max-width: 80%;">${smartReply}</span></div>`;
                 msgArea.scrollTop = msgArea.scrollHeight;
-            }, 1000);
+            }, randomTime);
         }
     </script>
 </body>
