@@ -15,8 +15,10 @@
         .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; font-size: 14px; }
         .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
         .btn-submit { background: #2ed573; color: white; border: none; padding: 12px; width: 100%; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        .banner { background: #ff4757; color: white; padding: 10px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; }
+        .banner { background: #0088cc; color: white; padding: 10px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; font-size: 14px; }
         .profile-card { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: left; }
+        .profile-info h4 { margin: 0 0 5px 0; color: #222; font-size: 16px; }
+        .profile-info p { margin: 0; color: #666; font-size: 13px; }
         .chat-box { background: white; border-radius: 8px; padding: 10px; height: 350px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: left; }
         .messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
         .msg { padding: 10px; border-radius: 8px; max-width: 75%; word-break: break-word; }
@@ -30,7 +32,7 @@
 <body>
 
     <div class="container">
-        <!-- ফর্ম ভিউ: নাম, বয়স, ঠিকানা, শখ ও জেন্ডার ফিল্টার -->
+        <!-- ফর্ম ভিউ -->
         <div id="form-view" class="card">
             <h2>আপনার বিবরণ দিন</h2>
             <div class="form-group">
@@ -47,7 +49,7 @@
             </div>
             <div class="form-group">
                 <label>শখ:</label>
-                <input type="text" id="userHobby" placeholder="যেমন: ঘুরাঘুরি, বই পড়া, গান শোনা">
+                <input type="text" id="userHobby" placeholder="যেমন: ঘুরাঘুরি, ফটোগ্রাফি">
             </div>
             <div class="form-group">
                 <label>আপনার জেন্ডার:</label>
@@ -59,8 +61,8 @@
             <div class="form-group">
                 <label>কার অ্যাকাউন্ট খুঁজতে চান?</label>
                 <select id="searchPreference">
-                    <option value="meye">মেয়েদের অ্যাকাউন্ট</option>
-                    <option value="chele">ছেলেদের অ্যাকাউন্ট</option>
+                    <option value="meye">মেয়েদের অ্যাকাউন্ট (৪০০+)</option>
+                    <option value="chele">ছেলেদের অ্যাকাউন্ট (২০০+)</option>
                 </select>
             </div>
             <button class="btn-submit" onclick="submitForm()">এপ্লিকেশনে প্রবেশ করুন</button>
@@ -68,9 +70,9 @@
 
         <!-- প্রোফাইল লিস্ট ভিউ -->
         <div id="profiles-view" class="hidden">
-            <div class="banner">Active people's accounts দেখা যাচ্ছে</div>
-            <div id="profile-list-container">
-                <!-- ডায়নামিক প্রোফাইলগুলো এখানে লোড হবে -->
+            <div class="banner" id="banner-text">Active people's accounts</div>
+            <div id="profile-list-container" style="max-height: 500px; overflow-y: auto;">
+                <!-- ডায়নামিক প্রোফাইলগুলো এখানে জেনারেট হবে -->
             </div>
         </div>
 
@@ -89,15 +91,63 @@
     </div>
 
     <script>
-        // ডামি প্রোফাইল ডাটা (মেয়েরা এবং ছেলেরা আলাদা করা)
+        // প্রফেশনগুলোর লিস্ট (মডেল, ইনফ্লুয়েন্সার, ডাক্তার, ইঞ্জিনিয়ার ইত্যাদি)
+        const professions = [
+            "Model", "TikTok Artist", "Influencer", "Dancer", "Public Figure", 
+            "Doctor", "Engineer", "Entrepreneur", "Fashion Designer", "Makeup Artist", 
+            "Content Creator", "Photographer", "Actress", "Singer", "Host & Anchor"
+        ];
+
+        const cities = ["ঢাকা", "চট্টগ্রাম", "সিলেট", "রাজশাহী", "খুলনা", "কুমিল্লা", "বগুড়া", "রংপুর", "বরিশাল", "গাজীপুর", "নারায়ণগঞ্জ"];
+
+        // মেয়েদের নাম (ব্যাস বেস তৈরি করার জন্য মূল নামগুলো, এগুলো দিয়ে স্বয়ংক্রিয়ভাবে ৪০০+ আইডি জেনারেট হবে)
+        const baseGirlNames = [
+            "মাহি খোন্দকার", "সায়মা প্রিয়া", "পূজা চৌধুরী", "নুসরাত জাহান", "ফাতিমা আক্তার",
+            "মেহজাবিন চৌধুরী", "তানজিন তিশা", "সাবিলা নূর", "পূর্ণিমা রায়", "বিদ্যা সিনহা মিম",
+            "পরীমণি", "রোকেয়া প্রাচী", "অর্পিতা সেন", "নাদিয়া আহমেদ", "প্রসূন আজাদ",
+            "সাফা কবির", "কেয়া পায়েল", "ফারজানা রিক্তা", "সুনাইনা ইসলাম", "সামিরা খান মাহি",
+            "জেবা জান্নাত", "ত্বিষা মারিয়া", "দোলন দে", "ঐশী আহমেদ", "শম্পা নিজাম",
+            "রোশনি আরা", "বৃষ্টি খাতুন", "মেঘলা সেন", "বর্ষা চৌধুরী", "প্রিয়াঙ্কা পাল",
+            "সায়রা বানু", "নিশাত আনজুম", "ফারহানা মিলি", "শবনম ফারিয়া", "নাজিরা মৌ"
+        ];
+
+        // ছেলেদের নাম (২০০+ আইডি তৈরির জন্য মূল নামগুলো)
+        const baseBoyNames = [
+            "রাকিব হাসান", "তানভীর আহমেদ", "ফাহিম মুনতাসির", "সাকিব খান", "আরিফ হোসেন",
+            "সিয়াম আহমেদ", "যোজন মাহমুদ", "প্রীতম হাসান", "তৌহিদ আফ্রিদি", "শাফায়েত উল্লাহ",
+            "জোভান আহমেদ", "মেহরাব হোসেন", "নাঈম ইসলাম", "রিদওয়ান মালিক", "আশিকুর রহমান",
+            "তানভীর সুইট", "সাব্বির রহমান", "ইমরান হাসিন", "নাবিল আহমেদ", "ফাইয়াজ আহমেদ",
+            "জুবায়ের হোসেন", "সাজ্জাদুল ইসলাম", "রাহাতুল ইসলাম", "রিফাত চৌধুরী", "আকিফুজ জামান"
+        ];
+
+        // স্বয়ংক্রিয়ভাবে ৪শ+ মেয়ে এবং ২০০+ ছেলের ডাটাবেজ তৈরি করার ফাংশন
+        function generateProfiles(baseNames, genderType, totalCount) {
+            let list = [];
+            let firstNames = baseNames;
+            let lastTitles = ["خان", "चौधरी", "আহমেদ", "চৌধুরী", "তালুকদার", "মজুমদার", "সরকার", "প্রামাণিক"];
+
+            for (let i = 1; i <= totalCount; i++) {
+                let randomNameBase = firstNames[(i - 1) % firstNames.length];
+                let uniqueName = i > firstNames.length ? `${randomNameBase} ${i}` : randomNameBase;
+                let randomCity = cities[i % cities.length];
+                let randomProf = professions[i % professions.length];
+                let randomAge = 18 + (i % 9); // বয়স ১৮ থেকে ২৬ এর মধ্যে
+
+                list.json = true;
+                list.push({
+                    name: uniqueName,
+                    gender: genderType,
+                    details: `${randomAge} বছর • ${randomCity}`,
+                    profession: randomProf
+                });
+            }
+            return list;
+        }
+
+        // ৪৫০+ মেয়ে এবং ২২০+ ছেলের ফুল ডাটাবেজ তৈরি
         const allProfiles = [
-            { name: "মাহি খোন্দকার", gender: "meye", details: "ঢাকা" },
-            { name: "সায়মা প্রিয়া", gender: "meye", details: "কুমিল্লা" },
-            { name: "পূজা চৌধুরী", gender: "meye", details: "গাজীপুর" },
-            { name: "নুসরাত জাহান", gender: "meye", details: "চট্টগ্রাম" },
-            { name: "রাকিব হাসান", gender: "chele", details: "সিলেট" },
-            { name: "তানভীর আহমেদ", gender: "chele", details: "রাজশাহী" },
-            { name: "ফাহিম মুনতাসির", gender: "chele", details: "খুলনা" }
+            ...generateProfiles(baseGirlNames, "meye", 420),
+            ...generateProfiles(baseBoyNames, "chele", 220)
         ];
 
         function submitForm() {
@@ -112,7 +162,6 @@
                 return;
             }
 
-            // ইউজার ডাটা সেভ করা
             localStorage.setItem("userRegistered", "true");
             localStorage.setItem("searchPreference", preference);
 
@@ -126,14 +175,19 @@
             const container = document.getElementById('profile-list-container');
             container.innerHTML = "";
 
-            // ইউজারের পছন্দ অনুযায়ী ফিল্টার করা (যেমন ইউজার যদি মেয়েদের অ্যাকাউন্ট খুঁজতে চায়)
             const filtered = allProfiles.filter(p => p.gender === preference);
+            
+            document.getElementById('banner-text').innerText = `Active people's accounts (${filtered.length}+ Available)`;
 
             filtered.forEach(profile => {
                 container.innerHTML += `
                     <div class="profile-card">
-                        <span><b>${profile.name}</b> • ${profile.details}</span>
-                        <button onclick="openChat('${profile.name}')" style="background:#2ed573; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer;">মেসেজ</button>
+                        <div class="profile-info">
+                            <h4>${profile.name}</h4>
+                            <p><b>${profile.profession}</b></p>
+                            <p>${profile.details}</p>
+                        </div>
+                        <button onclick="openChat('${profile.name}')" style="background:#2ed573; color:white; border:none; padding:8px 14px; border-radius:5px; cursor:pointer; font-weight:bold;">মেসেজ</button>
                     </div>
                 `;
             });
@@ -160,26 +214,20 @@
             if (!message) return;
 
             const msgList = document.getElementById('msgList');
-            
-            // ইউজারের মেসেজ স্ক্রিনে দেখানো
             msgList.innerHTML += `<div class="msg user">${message}</div>`;
             inputField.value = '';
             msgList.scrollTop = msgList.scrollHeight;
 
-            // পার্মানেন্ট লক চেক: এই প্রোফাইলের চ্যাটে কি অলরেডি উত্তর দেওয়া হয়েছে?
             const replyKey = `locked_chat_${currentChatUser}`;
             if (localStorage.getItem(replyKey) === "true") {
                 return; // লক করা থাকলে আর কোনো রিপ্লাই বা রিকোয়েস্ট যাবে না
             }
 
-            // নির্দিষ্ট একক রিপ্লাই
             const replyText = `আপনার WhatsApp নম্বর দিয়ে রাখুন, ${currentChatUser} অনলাইন এ আসলে আপনাকে মেসেজ দিবে`;
 
             setTimeout(() => {
                 msgList.innerHTML += `<div class="msg bot">${replyText}</div>`;
                 msgList.scrollTop = msgList.scrollHeight;
-                
-                // চ্যাট চিরতরে লক করে দেওয়া হলো
                 localStorage.setItem(replyKey, "true");
             }, 400);
         }
