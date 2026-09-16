@@ -25,14 +25,14 @@
 </head>
 <body>
 
-    <!-- পেমেন্ট ও অ্যাক্সেস ওয়াল -->
+    <!-- পেমেন্ট ওয়াল -->
     <div id="paywall">
         <h2>🔒 প্রিমিয়াম অ্যাক্সেস</h2>
         <p>মিনি অ্যাপ ব্যবহার করতে এবং চ্যাট করতে আগে পেমেন্ট সম্পন্ন করুন।</p>
         <button class="btn-pay" onclick="verifyPayment()">টেলিগ্রাম বট পেমেন্ট সম্পন্ন করুন</button>
     </div>
 
-    <!-- মূল মিনি অ্যাপ ইন্টারফেস -->
+    <!-- মূল মিনি অ্যাপ -->
     <div id="app-container" class="hidden">
         <div class="banner">Active people's accounts দেখা যাচ্ছে</div>
         
@@ -61,9 +61,7 @@
     </div>
 
     <script>
-        // পেমেন্ট চেক করার ফাংশন (বট পেমেন্টের পর এক্সেস দিবে)
         function verifyPayment() {
-            // পেমেন্ট সফল ধরে অ্যাপ আনলক করা হচ্ছে
             localStorage.setItem("hasPaid", "true");
             checkAccess();
         }
@@ -97,10 +95,17 @@
 
             const msgList = document.getElementById('msgList');
             
-            // ইউজারের মেসেজ যোগ করা
+            // ইউজারের মেসেজ স্ক্রিনে যোগ করা
             msgList.innerHTML += `<div class="msg user">${message}</div>`;
             inputField.value = '';
             msgList.scrollTop = msgList.scrollHeight;
+
+            // চেক করা যে এই চ্যাটে ইতিমধ্যে বটের রিপ্লাই দেওয়া হয়েছে কি না
+            const replyKey = `replied_${currentChatUser}`;
+            if (localStorage.getItem(replyKey) === "true") {
+                // ইতিমধ্যে একবার উত্তর দেওয়া হয়ে থাকলে আর কোনো রিকোয়েস্ট যাবে না বা উত্তর আসবে না
+                return;
+            }
 
             try {
                 const response = await fetch('/api/chat', {
@@ -110,18 +115,20 @@
                 });
                 const data = await response.json();
 
-                // বটের ফিক্সড রিপ্লাই দেখানো
+                // মাত্র ১টি ইনস্ট্যান্ট রিপ্লাই দেখানো
                 setTimeout(() => {
                     msgList.innerHTML += `<div class="msg bot">${data.reply}</div>`;
                     msgList.scrollTop = msgList.scrollHeight;
-                }, 1000);
+                    
+                    // মার্ক করে দেওয়া হলো যে এই চ্যাটে রিপ্লাই দেওয়া শেষ, এরপর আর দিবে না
+                    localStorage.setItem(replyKey, "true");
+                }, 500);
 
             } catch (err) {
                 console.error(err);
             }
         }
 
-        // পেজ লোড হলে পেমেন্ট স্ট্যাটাস চেক করবে
         window.onload = checkAccess;
     </script>
 </body>
