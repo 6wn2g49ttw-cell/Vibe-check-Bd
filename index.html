@@ -43,13 +43,14 @@
             font-weight: 600;
             margin-bottom: 5px;
         }
-        input {
+        input, select {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 8px;
             box-sizing: border-box;
             font-size: 14px;
+            background: #fff;
         }
         .optional-text {
             font-size: 11px;
@@ -71,6 +72,11 @@
         .hidden {
             display: none;
         }
+        .profiles-scroll-area {
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
         .profile-card {
             display: flex;
             align-items: center;
@@ -79,6 +85,7 @@
             padding: 10px;
             border-radius: 8px;
             margin-bottom: 10px;
+            border: 1px solid #eee;
         }
         .profile-left {
             display: flex;
@@ -112,7 +119,6 @@
             width: auto;
             margin-top: 0;
         }
-        /* চ্যাট উইন্ডো স্টাইল */
         .chat-box {
             background: #fff;
             border: 1px solid #ddd;
@@ -156,7 +162,7 @@
         <!-- ১. প্রোফাইল রেজিস্ট্রেশন ফর্ম -->
         <div id="register-section" class="card">
             <h2>💖 ভাইব চেক বিডি</h2>
-            <p style="text-align: center; font-size: 13px; color: #666; margin-top: -5px;">চ্যাট শুরু করতে আপনার প্রোফাইল তৈরি করুন</p>
+            <p style="text-align: center; font-size: 13px; color: #666; margin-top: -5px;">চ্যাট শুরু করতে আপনার তথ্য দিন</p>
             
             <div class="form-group">
                 <label>আপনার নাম বা ডাকনাম</label>
@@ -179,6 +185,13 @@
                 <input type="text" id="hobbies" placeholder="যেমন: গেম, ভ্রমণ">
             </div>
             <div class="form-group">
+                <label>কার সাথে চ্যাট করতে চান?</label>
+                <select id="chat-preference">
+                    <option value="female">মেয়েদের সাথে (২১৩টি প্রোফাইল)</option>
+                    <option value="male">ছেলেদের সাথে (৮৬টি প্রোফাইল)</option>
+                </select>
+            </div>
+            <div class="form-group">
                 <label>প্রোফাইল ছবির লিংক <span class="optional-text">(ঐচ্ছিক)</span></label>
                 <input type="text" id="photo" placeholder="https://example.com/photo.jpg">
             </div>
@@ -188,36 +201,13 @@
         <!-- ২. ড্যাশবোর্ড বা চ্যাট ফিড সেকশন -->
         <div id="dashboard-section" class="hidden">
             <h2>🔥 সক্রিয় প্রোফাইলসমূহ</h2>
-            <div class="card" style="background: #eef6fc;">
+            <div class="card" style="background: #eef6fc; margin-bottom: 10px;">
                 <h3 id="welcome-user" style="margin:0 0 5px 0;">স্বাগতম!</h3>
                 <p id="user-details-summary" style="margin:0; font-size:13px; color:#555;"></p>
             </div>
             
-            <div id="profiles-list">
-                <!-- প্রোফাইল কার্ড ১ -->
-                <div class="profile-card">
-                    <div class="profile-left">
-                        <img src="https://picsum.photos/50/50?random=10" class="profile-avatar" alt="Avatar">
-                        <div class="profile-info">
-                            <h4>নুসরাত, ২১ • চট্টগ্রাম</h4>
-                            <p>ছাত্রী | শখ: বই পড়া</p>
-                        </div>
-                    </div>
-                    <button class="chat-btn" onclick="openChat('নুসরাত')">মেসেজ</button>
-                </div>
-
-                <!-- প্রোফাইল কার্ড ২ -->
-                <div class="profile-card">
-                    <div class="profile-left">
-                        <img src="https://picsum.photos/50/50?random=20" class="profile-avatar" alt="Avatar">
-                        <div class="profile-info">
-                            <h4>রহিম, ২৪ • সিলেট</h4>
-                            <p>ইঞ্জিনিয়ার | শখ: ফটোগ্রাফি</p>
-                        </div>
-                    </div>
-                    <button class="chat-btn" onclick="openChat('রহিম')">মেসেজ</button>
-                </div>
-            </div>
+            <!-- স্ক্রোলেবল প্রোফাইল লিস্ট (২১৩টি বা ৮৬টি শো করার এরিয়া) -->
+            <div class="profiles-scroll-area" id="profiles-list"></div>
 
             <!-- চ্যাট বক্স -->
             <div id="chat-box-container" class="chat-box hidden">
@@ -225,7 +215,7 @@
                 <div class="chat-messages" id="chat-messages-area">
                     <p style="color: #888; text-align: center; font-size: 12px;">কথোপকথন শুরু করুন...</p>
                 </div>
-                <div id="typing-status" class="typing-indicator">লিংক লিখছেন...</div>
+                <div id="typing-status" class="typing-indicator">টাইপ করছেন...</div>
                 <div class="chat-input-area">
                     <input type="text" id="msg-input" placeholder="কিছু একটা লিখুন...">
                     <button onclick="sendMessage()">পাঠান</button>
@@ -241,8 +231,46 @@
         tg.expand();
         let currentChatUser = "";
 
+        // ডাইনামিক র্যান্ডম নাম এবং শহরের তালিকা থেকে ২১৩টি মেয়ে ও ৮৬টি ছেলের প্রফেশনাল ডাটা জেনারেট করার লজিক
+        const firstNamesFemale = ["নুসরাত", "সাদিয়া", "মেহজাবিন", "প্রিয়া", "তানিয়া", "ফারিহা", "আফরোজা", "পূজা", "রোকেয়া", "ঝিনুক", "মাহি", "পূরবী", "নূসরাত", "সামিয়া", "তানজিম", "অর্পা", "পূজা", "নাজিফা", "সায়মা", "মৌসুমী"];
+        const lastNamesFemale = ["জাহান", "ইসলাম", "প্রিয়া", "আক্তার", "সুলতানা", "चौধুরী", "হক", "রহমান", "সেন", "দাস", "মণ্ডল", "তালুকদার", "ববি", "খন্দকার", "সিদ্দিকা"];
+        const cities = ["ঢাকা", "চট্টগ্রাম", "সিলেট", "রাজশাহী", "খুলনা", "বরিশাল", "রংপুর", "কুমিল্লা", "ময়মনসিংহ", "গাজীপুর", "নারায়ণগঞ্জ"];
+        const professionsFemale = ["ছাত্রী", "গ্রাফিক্স ডিজাইনার", "মডেল", "শিক্ষিকা", "ফ্যাশন ডিজাইনার", "সাংবাদিক", "কন্টেন্ট ক্রিয়েটর", "ডাক্তার"];
+        const hobbiesFemale = ["বই পড়া", "ফটোগ্রাফি", "গান শোনা", "রান্না করা", "নাটক দেখা", "ভ্রমণ", "আঁকাআঁকি"];
+
+        const firstNamesMale = ["রহিম", "তানভীর", "ফাহিম", "শাকিল", "সাকিব", "রাকিব", "ইমরান", "নাঈম", "জনি", "সাব্বির", "আরিফ", "নয়ন", "রিদয়", "জাহিদ", "সোহাগ", "সজীব", "বায়েজিদ", "ফারহান"];
+        const lastNamesMale = ["উদ্দিন", "আহমেদ", "মুনতাসীর", "খান", "চৌধুরী", "হক", "মজুমদার", "তালুকদার", "সরকার", "মিয়া", "বিশ্বাস", "প্রামাণিক"];
+        const professionsMale = ["সফটওয়্যার ইঞ্জিনিয়ার", "ব্যবসায়ী", "ডিজিটাল মার্কেটার", "ফ্রিল্যান্সার", "ব্যাংকার", "সাংবাদিক", "গ্রাফিক্স ডিজাইনার", "ছাত্র"];
+        const hobbiesMale = ["কোডিং ও গেম", "ভ্রমণ", "ক্রিকেট", "ফটোগ্রাফি", "গিটার বাজানো", "সিনেমা দেখা", "ফুটবল"];
+
+        function generateProfiles(count, gender) {
+            let list = [];
+            let fNames = gender === 'female' ? firstNamesFemale : firstNamesMale;
+            let lNames = gender === 'female' ? lastNamesFemale : lastNamesMale;
+            let profs = gender === 'female' ? professionsFemale : professionsMale;
+            let hobs = gender === 'female' ? hobbiesFemale : hobbiesMale;
+
+            for (let i = 1; i <= count; i++) {
+                let name = fNames[Math.floor(Math.random() * fNames.length)] + " " + lNames[Math.floor(Math.random() * lNames.length)];
+                let age = Math.floor(Math.random() * (28 - 18 + 1)) + 18;
+                let city = cities[Math.floor(Math.random() * cities.length)];
+                let profession = profs[Math.floor(Math.random() * profs.length)];
+                let hobby = hobs[Math.floor(Math.random() * hobs.length)];
+                let avatar = `https://picsum.photos/50/50?random=${gender === 'female' ? i : i + 500}`;
+
+                list.push({ name: `${name} (${i})`, age, city, profession, hobby, avatar });
+            }
+            return list;
+        }
+
+        // মেয়েদের ২১৩টি এবং ছেলেদের ৮৬টি প্রোফাইল জেনারেট করা হলো
+        const allProfiles = {
+            female: generateProfiles(213, 'female'),
+            male: generateProfiles(86, 'male')
+        };
+
         window.onload = function() {
-            let savedProfile = localStorage.getItem('vibecheck_bn_user');
+            let savedProfile = localStorage.getItem('vibecheck_user_data');
             if (savedProfile) {
                 let user = JSON.parse(savedProfile);
                 showDashboard(user);
@@ -253,8 +281,9 @@
             let name = document.getElementById('name').value.trim();
             let age = document.getElementById('age').value.trim();
             let city = document.getElementById('city').value.trim();
-            let profession = document.getElementById('profession').value.trim() || 'উল্লেখ করা হয়নি';
+            let profession = document.getElementById('profession').value.trim() || 'ছাত্র/চাকুরীজীবী';
             let hobbies = document.getElementById('hobbies').value.trim() || 'সাধারণ';
+            let preference = document.getElementById('chat-preference').value;
             
             let photoInput = document.getElementById('photo').value.trim();
             let photo = photoInput !== "" ? photoInput : 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
@@ -264,8 +293,8 @@
                 return;
             }
 
-            let userData = { name, age, city, profession, hobbies, photo };
-            localStorage.setItem('vibecheck_bn_user', JSON.stringify(userData));
+            let userData = { name, age, city, profession, hobbies, preference, photo };
+            localStorage.setItem('vibecheck_user_data', JSON.stringify(userData));
             
             showDashboard(userData);
         }
@@ -275,12 +304,33 @@
             document.getElementById('dashboard-section').classList.remove('hidden');
             document.getElementById('welcome-user').innerText = `স্বাগতম, ${user.name}! 👋`;
             document.getElementById('user-details-summary').innerText = `বয়স: ${user.age} বছর • শহর: ${user.city} • পেশা: ${user.profession}\nশখ: ${user.hobbies}`;
+
+            let profilesContainer = document.getElementById('profiles-list');
+            profilesContainer.innerHTML = "";
+
+            let targetList = allProfiles[user.preference] || allProfiles.female;
+
+            targetList.forEach(p => {
+                profilesContainer.innerHTML += `
+                    <div class="profile-card">
+                        <div class="profile-left">
+                            <img src="${p.avatar}" class="profile-avatar" alt="Avatar">
+                            <div class="profile-info">
+                                <h4>${p.name}, ${p.age} • ${p.city}</h4>
+                                <p>${p.profession} | শখ: ${p.hobby}</p>
+                            </div>
+                        </div>
+                        <button class="chat-btn" onclick="openChat('${p.name}')">মেসেজ</button>
+                    </div>
+                `;
+            });
         }
 
         function resetProfile() {
-            localStorage.removeItem('vibecheck_bn_user');
+            localStorage.removeItem('vibecheck_user_data');
             document.getElementById('dashboard-section').classList.add('hidden');
             document.getElementById('register-section').classList.remove('hidden');
+            document.getElementById('chat-box-container').classList.add('hidden');
         }
 
         function openChat(name) {
@@ -290,58 +340,44 @@
             document.getElementById('chat-messages-area').innerHTML = `<p style="color: #888; text-align: center; font-size: 12px;">${name}-এর সাথে চ্যাট শুরু হয়েছে...</p>`;
         }
 
-        function sendMessage() {
+        async function sendMessage() {
             let input = document.getElementById('msg-input');
             let text = input.value.trim();
             if(!text) return;
 
             let msgArea = document.getElementById('chat-messages-area');
             
-            // ইউজারের মেসেজ যোগ করা
             msgArea.innerHTML += `<div style="text-align: right; margin-bottom: 8px;"><span style="background: #2481cc; color: white; padding: 6px 10px; border-radius: 8px; display: inline-block; font-size: 12px; max-width: 80%;">${text}</span></div>`;
             input.value = "";
             msgArea.scrollTop = msgArea.scrollHeight;
 
-            // "টাইপিং..." স্ট্যাটাস দেখানো
             let typingIndicator = document.getElementById('typing-status');
             typingIndicator.innerText = `${currentChatUser} টাইপ করছেন...`;
             typingIndicator.style.display = "block";
 
-            // ইউজার কী লিখছে তার ওপর ভিত্তি করে স্মার্ট ও প্রাসঙ্গিক উত্তর সিলেক্ট করার লজিক
-            let lowerText = text.toLowerCase();
-            let smartReply = "";
+            try {
+                let response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text, chatUserName: currentChatUser })
+                });
 
-            if (lowerText.includes('কেমন') || lowerText.includes('kemon') || lowerText.includes('hi') || lowerText.includes('hello') || lowerText.includes('হাই')) {
-                smartReply = "আলহামদুলিল্লাহ, ভালো আছি! আপনি কেমন আছেন?";
-            } else if (lowerText.includes('নাম') || lowerText.includes('name') || lowerText.includes('के')) {
-                smartReply = `আমার নাম ${currentChatUser}। আর আপনার নাম কী?`;
-            } else if (lowerText.includes('কোথায়') || lowerText.includes('basha') || lowerText.includes('kothay') || lowerText.includes('city')) {
-                smartReply = "আমি এই অ্যাপেই থাকি! আপনার বাসা কোথায়?";
-            } else if (lowerText.includes('কী করো') || lowerText.includes('ki koro') || lowerText.includes('student') || lowerText.includes('job')) {
-                smartReply = "পড়াশোনা আর এই অ্যাপ নিয়ে ব্যস্ত থাকি। আপনি কী করেন?";
-            } else if (lowerText.includes('love') || lowerText.includes('crush') || lowerText.includes('bhalobasha') || lowerText.includes('dating')) {
-                smartReply = "বাপরে! এত দ্রুত প্রেমের কথা বলছেন কেন? আগে বন্ধু তো হই! 🤭";
-            } else {
-                // সাধারণ বা অন্য কথার জন্য র্যান্ডম ক্যাচি উত্তর
-                const generalReplies = [
-                    "হুম, বিষয়টি ইন্টারেস্টিং তো! তারপর বলুন...",
-                    "আপনার সাথে কথা বলে বেশ ভালো লাগছে। সারাদিন কী করেন?",
-                    "আচ্ছা! এই কথাটা দারুণ বলেছেন। 😃",
-                    "তাই নাকি? আমি তো জানতামই না!",
-                    "আপনার হবি বা শখ কী কী বলুন তো?",
-                    "চমৎকার! ফ্রি থাকলে ঘুরে আসার প্ল্যান করা যেতে পারে।"
-                ];
-                smartReply = generalReplies[Math.floor(Math.random() * generalReplies.length)];
-            }
+                let data = await response.json();
+                let aiReply = data.reply || "বাহ, দারুণ কথা বললেন! আচ্ছা বলুন তো, আপনার ফ্রি সময়ে কী করতে ভালো লাগে?";
 
-            // ১০ থেকে ২০ সেকেন্ডের মধ্যে র্যান্ডম টাইম সিলেক্ট করা (যেমন: ১০ সেকেন্ড থেকে ২০ সেকেন্ডের মধ্যে যেকোনো এক সময়ে মেসেজ আসবে)
-            let randomTime = Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000;
+                // আপনার চাওয়া অনুযায়ী ১০ থেকে ৩০ সেকেন্ডের মধ্যে রেন্ডম টাইম ডিলে (বাস্তব মানুষের মতো)
+                let randomDelay = Math.floor(Math.random() * (30000 - 10000 + 1)) + 10000;
 
-            setTimeout(() => {
+                setTimeout(() => {
+                    typingIndicator.style.display = "none";
+                    msgArea.innerHTML += `<div style="text-align: left; margin-bottom: 8px;"><span style="background: #e5e5ea; color: black; padding: 6px 10px; border-radius: 8px; display: inline-block; font-size: 12px; max-width: 80%;">${aiReply}</span></div>`;
+                    msgArea.scrollTop = msgArea.scrollHeight;
+                }, randomDelay);
+
+            } catch (err) {
                 typingIndicator.style.display = "none";
-                msgArea.innerHTML += `<div style="text-align: left; margin-bottom: 8px;"><span style="background: #e5e5ea; color: black; padding: 6px 10px; border-radius: 8px; display: inline-block; font-size: 12px; max-width: 80%;">${smartReply}</span></div>`;
-                msgArea.scrollTop = msgArea.scrollHeight;
-            }, randomTime);
+                console.error(err);
+            }
         }
     </script>
 </body>
