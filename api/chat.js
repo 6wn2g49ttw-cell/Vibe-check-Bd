@@ -5,11 +5,11 @@ export default async function handler(req, res) {
 
     const { message, chatUserName } = req.body;
     
-    // সরাসরি এখানে আপনার জেমিনি এপিআই কি বসিয়ে দিন (কোড দুটির মাঝখানে)
-    const apiKey = process.env.GEMINI_API_KEY || "AIzaSy...আপনার_আসল_এপিআই_কি_এখানে_বসান";
+    // নিচে কোটেশনের ভেতরে আপনার আসল জেমিনি এপিআই কি (API Key) বসিয়ে দিন
+    const apiKey = "আপনার_আসল_জেমিনি_এপিআই_কি_এখানে_বসান";
 
     if (!apiKey) {
-        return res.status(500).json({ error: 'API Key not configured' });
+        return res.status(500).json({ error: 'API Key missing' });
     }
 
     try {
@@ -28,7 +28,7 @@ export default async function handler(req, res) {
         const data = await apiResponse.json();
         let reply = "আচ্ছা, বিষয়টি বেশ ইন্টারেস্টিং! আপনার সম্পর্কে আরও কিছু বলুন তো?";
 
-        if (data.candidates && data.candidates[0].content.parts[0].text) {
+        if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) {
             reply = data.candidates[0].content.parts[0].text;
         }
 
