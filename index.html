@@ -1,17 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VibeCheck BD - Dating & Chat</title>
+    <title>ভাইব চেক বিডি - ডেটিং ও চ্যাট</title>
     <!-- Telegram Web App Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
             --tg-theme-bg-color: #ffffff;
             --tg-theme-text-color: #000000;
-            --tg-theme-hint-color: #999999;
-            --tg-theme-link-color: #2481cc;
             --tg-theme-button-color: #2481cc;
             --tg-theme-button-text-color: #ffffff;
         }
@@ -46,7 +44,7 @@
             font-weight: 600;
             margin-bottom: 5px;
         }
-        input, textarea {
+        input {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -104,43 +102,43 @@
 <body>
 
     <div class="container">
-        <!-- ১. প্রোফাইল সেটআপ ফর্ম সেকশন -->
+        <!-- ১. প্রোফাইল রেজিস্ট্রেশন ফর্ম -->
         <div id="register-section" class="card">
-            <h2>💖 VibeCheck BD</h2>
-            <p style="text-align: center; font-size: 13px; color: #666; margin-top: -5px;">Create your profile to start chatting</p>
+            <h2>💖 ভাইব চেক বিডি</h2>
+            <p style="text-align: center; font-size: 13px; color: #666; margin-top: -5px;">চ্যাট শুরু করতে আপনার প্রোফাইল তৈরি করুন</p>
             
             <div class="form-group">
-                <label>Name / Nickname</label>
-                <input type="text" id="name" placeholder="e.g. Tanvir">
+                <label>আপনার নাম বা ডাকনাম</label>
+                <input type="text" id="name" placeholder="যেমন: তানভীর">
             </div>
             <div class="form-group">
-                <label>Age</label>
-                <input type="number" id="age" placeholder="e.g. 22">
+                <label>বয়স</label>
+                <input type="number" id="age" placeholder="যেমন: ২২">
             </div>
             <div class="form-group">
-                <label>City</label>
-                <input type="text" id="city" placeholder="e.g. Dhaka">
+                <label>শহর</label>
+                <input type="text" id="city" placeholder="যেমন: ঢাকা">
             </div>
             <div class="form-group">
-                <label>Profession</label>
-                <input type="text" id="profession" placeholder="e.g. Student / Job Holder">
+                <label>পেশা</label>
+                <input type="text" id="profession" placeholder="যেমন: ছাত্র / চাকুরীজীবী">
             </div>
             <div class="form-group">
-                <label>Hobby</label>
-                <input type="text" id="hobbies" placeholder="e.g. Gaming, Travelling, Music">
+                <label>শখ (Hobby)</label>
+                <input type="text" id="hobbies" placeholder="যেমন: গেম খেলা, ভ্রমণ, গান শোনা">
             </div>
             <div class="form-group">
-                <label>Profile Picture URL <span class="optional-text">(Optional)</span></label>
+                <label>প্রোফাইল ছবির লিংক <span class="optional-text">(ঐচ্ছিক)</span></label>
                 <input type="text" id="photo" placeholder="https://example.com/photo.jpg">
             </div>
-            <button onclick="saveProfile()">Save & Open Chat</button>
+            <button onclick="saveProfile()">সেভ করুন ও চ্যাট শুরু করুন</button>
         </div>
 
         <!-- ২. ড্যাশবোর্ড বা চ্যাট ফিড সেকশন -->
         <div id="dashboard-section" class="hidden">
-            <h2>🔥 Active Profiles</h2>
+            <h2>🔥 সক্রিয় প্রোফাইলসমূহ</h2>
             <div class="card" style="background: #eef6fc;">
-                <h3 id="welcome-user" style="margin:0 0 5px 0;">Welcome!</h3>
+                <h3 id="welcome-user" style="margin:0 0 5px 0;">স্বাগতম!</h3>
                 <p id="user-details-summary" style="margin:0; font-size:13px; color:#555;"></p>
             </div>
             
@@ -149,19 +147,19 @@
                 <div class="profile-card">
                     <img src="https://picsum.photos/50/50?random=10" class="profile-avatar" alt="Avatar">
                     <div class="profile-info">
-                        <h4>Nusrat, 21 • Chattogram</h4>
-                        <p>Profession: Student | Hobby: Reading</p>
+                        <h4>নুসরাত, ২১ • চট্টগ্রাম</h4>
+                        <p>পেশা: ছাত্রী | শখ: বই পড়া</p>
                     </div>
                 </div>
                 <div class="profile-card">
                     <img src="https://picsum.photos/50/50?random=20" class="profile-avatar" alt="Avatar">
                     <div class="profile-info">
-                        <h4>Rahim, 24 • Sylhet</h4>
-                        <p>Profession: Engineer | Hobby: Photography</p>
+                        <h4>রহিম, ২৪ • সিলেট</h4>
+                        <p>পেশা: ইঞ্জিনিয়ার | শখ: ফটোগ্রাফি</p>
                     </div>
                 </div>
             </div>
-            <button style="background-color: #e74c3c;" onclick="resetProfile()">Edit Profile</button>
+            <button style="background-color: #e74c3c;" onclick="resetProfile()">প্রোফাইল পরিবর্তন করুন</button>
         </div>
     </div>
 
@@ -169,9 +167,8 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // আগে থেকে প্রোফাইল সেভ করা থাকলে সরাসরি ড্যাশবোর্ড দেখাবে
         window.onload = function() {
-            let savedProfile = localStorage.getItem('vibecheck_user_profile');
+            let savedProfile = localStorage.getItem('vibecheck_bn_user');
             if (savedProfile) {
                 let user = JSON.parse(savedProfile);
                 showDashboard(user);
@@ -182,20 +179,19 @@
             let name = document.getElementById('name').value.trim();
             let age = document.getElementById('age').value.trim();
             let city = document.getElementById('city').value.trim();
-            let profession = document.getElementById('profession').value.trim() || 'Not specified';
-            let hobbies = document.getElementById('hobbies').value.trim() || 'General';
+            let profession = document.getElementById('profession').value.trim() || 'উল্লেখ করা হয়নি';
+            let hobbies = document.getElementById('hobbies').value.trim() || 'সাধারণ';
             
-            // ছবি না দিলে অটোমেটিক একটি ডিফল্ট অ্যাভাটার বা র্যান্ডম ছবি নিয়ে নেবে
             let photoInput = document.getElementById('photo').value.trim();
             let photo = photoInput !== "" ? photoInput : 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
 
             if(!name || !age || !city) {
-                alert('Please fill at least Name, Age, and City!');
+                alert('দয়া করে অন্তত নাম, বয়স এবং শহর পূরণ করুন!');
                 return;
             }
 
             let userData = { name, age, city, profession, hobbies, photo };
-            localStorage.setItem('vibecheck_user_profile', JSON.stringify(userData));
+            localStorage.setItem('vibecheck_bn_user', JSON.stringify(userData));
             
             showDashboard(userData);
         }
@@ -203,12 +199,12 @@
         function showDashboard(user) {
             document.getElementById('register-section').classList.add('hidden');
             document.getElementById('dashboard-section').classList.remove('hidden');
-            document.getElementById('welcome-user').innerText = `Hi, ${user.name}! 👋`;
-            document.getElementById('user-details-summary').innerText = `${user.age} yrs • ${user.city} • ${user.profession}\nHobby: ${user.hobbies}`;
+            document.getElementById('welcome-user').innerText = `স্বাগতম, ${user.name}! 👋`;
+            document.getElementById('user-details-summary').innerText = `বয়স: ${user.age} বছর • শহর: ${user.city} • পেশা: ${user.profession}\nশখ: ${user.hobbies}`;
         }
 
         function resetProfile() {
-            localStorage.removeItem('vibecheck_user_profile');
+            localStorage.removeItem('vibecheck_bn_user');
             document.getElementById('dashboard-section').classList.add('hidden');
             document.getElementById('register-section').classList.remove('hidden');
         }
